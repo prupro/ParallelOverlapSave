@@ -10,15 +10,16 @@ void print(float x[N]);
 __global__ void convolve(float *x, float *h, float *y, int fftL);
 
 int floorLog(int num){
-	int i;
+	int i=0;
 	while(num > 1){
 		num /= 2;
 		i++;
 	}
 
 	return i;
-
 }
+
+
 int main(){
 	float x[N];
 	float h[L] = {0,1,1};
@@ -32,17 +33,19 @@ int main(){
 
 	initData(x);
 
+	int fftL;
+	fftL = ( 1 << (floorLog(L) + 1) );	
+
+	int ovlapSize = L-1;
+	int extraZeroes;
+	extraZeroes = fftL - ( N%(fftL-ovlapSize) + ovlapSize );
+	if(extraZeroes < ovlapSize) extraZeroes += fftL-ovlapSize;
+
 	cudaMemcpy(dev_x,&x,N*sizeof(float),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_h,&h,L*sizeof(float),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_y,&y,(N+L-1)*sizeof(float),cudaMemcpyHostToDevice);
 	
-	int fftL;
-	
 
-	/*
-		decide fftL
-
-   */
 
 	dim3 dimGrid(N/fftL,1);
 	dim3 dimBlock(fftL,1);
@@ -80,7 +83,15 @@ void print(float x[N]){
 }
 
 __global__ void convolve(float *x, float *h, float *y, int fftL){
+	
+	float zph[fftL] = {0};
+	
+	int i;
+	for(i=0;i<L;i++)
+		zph[i] = h[i];
 
+	absId = blockIdx.x*blockDim.x+threadIdx.x;
+	zpx[L-1 + absId] =	x[absId];
 
-
+	
 }
