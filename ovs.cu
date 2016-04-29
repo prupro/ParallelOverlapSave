@@ -9,6 +9,16 @@ void initData(float x[N]);
 void print(float x[N]);
 __global__ void convolve(float *x, float *h, float *y, int fftL);
 
+int floorLog(int num){
+	int i;
+	while(num > 1){
+		num /= 2;
+		i++;
+	}
+
+	return i;
+
+}
 int main(){
 	float x[N];
 	float h[L] = {0,1,1};
@@ -27,6 +37,7 @@ int main(){
 	cudaMemcpy(dev_y,&y,(N+L-1)*sizeof(float),cudaMemcpyHostToDevice);
 	
 	int fftL;
+	
 
 	/*
 		decide fftL
